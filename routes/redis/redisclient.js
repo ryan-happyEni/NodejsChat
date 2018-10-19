@@ -22,9 +22,6 @@ module.exports.redisKeys=function(res, search){
         if(err){
             res.status(200).json(false);
         }else{
-            for(var i = 0, len = keys.length; i < len; i++) {
-              console.log(keys[i]);
-            }
             res.status(200).json(keys);
         }
     });     
@@ -40,14 +37,24 @@ module.exports.redisDel=function(res, key, value){
     });
 }
 
-module.exports.redisSet=function(res, key, value){
-    redisClient.set(key, value, function(err){
-        if(err){
-            res.status(200).json(false);
-        }else{
-            res.status(200).json(true);
-        }
-    });
+module.exports.redisSet=function(res, expierSeconds, key, value){
+    if(expierSeconds!=null && expierSeconds>0){
+        redisClient.setex(key, expierSeconds, value, function(err){
+            if(err){
+                res.status(200).json(false);
+            }else{
+                res.status(200).json(true);
+            }
+        });
+    }else{
+        redisClient.set(key, value, function(err){
+            if(err){
+                res.status(200).json(false);
+            }else{
+                res.status(200).json(true);
+            }
+        });
+    }
 }
 
 module.exports.redisGet=function(res, key){

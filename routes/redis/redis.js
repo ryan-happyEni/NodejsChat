@@ -57,7 +57,8 @@ router.post('/set', function(req, res, next) {
     var key = req.body.key;
     var value = req.body.value; 
     try {      
-        redisClient.redisSet(res, key, value); 
+        var expireSeconds = 60*60*24*30;
+        redisClient.redisSet(res, expireSeconds, key, value); 
     } catch (error) {
         console.log(error);
         res.send(500);

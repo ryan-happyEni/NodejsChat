@@ -71,7 +71,11 @@ block content
                 cache: false,
                 timeout: 600000,
                 success: function (data) {  
-                    $("#value").val(data!=null?data[param.key]:"");  
+                    if(data!=null && data[param.key]){
+                        $("#value").val(data[param.key]);      
+                    }else{
+                        $("#value").val(data);      
+                    }
                 },
                 error: function (e) {
                     var errorData = JSON.parse(JSON.stringify(e));
