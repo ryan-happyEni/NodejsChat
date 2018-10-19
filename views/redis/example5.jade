@@ -1,0 +1,144 @@
+extends ../layout
+
+
+block content 
+    div(class="container") 
+        div(class="col-md-12")
+            div(class="row")
+                h4 Example5 ( zadd / zrange ) 
+            div(class="row") 
+                div(class="col-md-12 mb-3")
+                    label(for="key") Key
+                    input(type="text" class="form-control" id="key")    
+
+            div(class="row") 
+                div(class="col-md-6 mb-3")
+                    label(for="list1") List 1
+                    input(type="text" class="form-control" id="list1")   
+                div(class="col-md-6 mb-3")
+                    label(for="value1") Value 1
+                    input(type="text" class="form-control" id="value1")  
+
+            div(class="row")
+                div(class="col-md-6 mb-3")
+                    label(for="list2") List 2
+                    input(type="text" class="form-control" id="list2")   
+                div(class="col-md-6 mb-3")
+                    label(for="value2") Value 2
+                    input(type="text" class="form-control" id="value2")   
+
+            div(class="row")
+                div(class="col-md-6 mb-3")
+                    label(for="list3") List3 2
+                    input(type="text" class="form-control" id="list3")   
+                div(class="col-md-6 mb-3")
+                    label(for="value3") Value 3
+                    input(type="text" class="form-control" id="value3")  
+
+            div(class="row") 
+                div(class="col-md-3 mb-3")
+                    label(for="start") Start 
+                    input(type="text" class="form-control" id="start" value="0")   
+
+                div(class="col-md-3 mb-3")
+                    label(for="end") End
+                    input(type="text" class="form-control" id="end" value="-1")   
+    
+            button(class="btn btn-primary btn-lg btn-block mb-3" type="button" id="btn_set") Set 
+            button(class="btn btn-warning btn-lg btn-block mb-3" type="button" id="btn_get") Get 
+
+
+    script(type="text/javascript").
+        selectHeaderMenu(2);
+
+        function setData(){
+            if($("#key").val()==""){
+                $("#key").focus();
+                return;
+            } 
+            
+            for(var i=1; i<=3; i++){
+                if($("#list"+i).val()==""){
+                    $("#list"+i).focus();
+                    return;
+                }
+                if($("#value"+i).val()==""){
+                    $("#value"+i).focus();
+                    return;
+                }
+            }
+
+            var list=[];
+            for(var i=1; i<=3; i++){
+                var info = {};
+                info[$("#value"+i).val()]=$("#list"+i).val();
+                list[list.length] = info;
+            } 
+            
+            var param = {}; 
+            param.key = $("#key").val(); 
+            param.value = list; 
+    
+            $.ajax({
+                type: "POST", 
+                url: "zadd", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        } 
+
+        function getData(){
+            if($("#key").val()==""){
+                $("#key").focus();
+                return;
+            }
+            if($("#start").val()==""){
+                $("#start").focus();
+                return;
+            }
+            if($("#end").val()==""){
+                $("#end").focus();
+                return;
+            }
+
+            var param = {}; 
+            param.key = $("#key").val();  
+            param.start = $("#start").val();  
+            param.end = $("#end").val();  
+    
+            $.ajax({
+                type: "POST", 
+                url: "zrange", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    console.log(data);
+                    if(data!=null){
+                        for(var i=0; i<3; i++){
+                            $("#list"+(i+1)).val("");
+                        }
+                        for(var i=0; i<data.length; i++){
+                            $("#list"+(i+1)).val(data[i]);
+                        }
+                    }
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+
+        $("#btn_set").click(function(){setData();});
+        $("#btn_get").click(function(){getData();});

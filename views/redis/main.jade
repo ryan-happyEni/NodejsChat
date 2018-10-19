@@ -1,0 +1,22 @@
+extends ../layout
+
+
+block content 
+    div(class="container") 
+        h4 Redis Main
+        div(class="col-md-12")
+            div(class="row mt-3") 
+                a(href="example1") Go example1.(set/get)
+            div(class="row mt-3") 
+                a(href="example2") Go example2.(hmset/hgetall)
+            div(class="row mt-3") 
+                a(href="example3") Go example3.(rpush/lrange)
+            div(class="row mt-3") 
+                a(href="example4") Go example4.(sadd/smembers)
+            div(class="row mt-3") 
+                a(href="example5") Go example5.(zadd/zrange)
+            div(class="row mt-3") 
+                a(href="example6") Go example6.(keys)
+
+    script(type="text/javascript").
+        selectHeaderMenu(2);

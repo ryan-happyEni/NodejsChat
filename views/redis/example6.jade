@@ -1,0 +1,71 @@
+extends ../layout
+
+
+block content 
+    div(class="container") 
+        div(class="col-md-12")
+            div(class="row")
+                h4 Example6 ( keys )
+            div(class="row") 
+                div(class="col-md-12 mb-3")
+                    label(for="search") Search
+                    div(class="input-group")
+                        input(type="text" class="form-control" id="search")  
+                        div(class="input-group-append") 
+                            button(class="btn btn-warning" type="button" id="btn_get") Search  
+            br
+            br
+            div(class="row")    
+                div(class="col-md-12 mb-3")
+                    h5 Key list. 
+                    table(class="table table-striped")
+                        thead   
+                            tr  
+                                th(width="100px") No
+                                th Key
+                        tbody(id="keylist")
+     
+
+
+    script(type="text/javascript").
+        selectHeaderMenu(2);
+
+
+        function getData(){
+            if($("#search").val()==""){
+                $("#search").focus();
+                return;
+            } 
+            if($("#search").val()=="*"){
+                $("#search").val("");
+                $("#search").focus();
+                return;
+            } 
+
+            var param = {}; 
+            param.search = $("#search").val();    
+    
+            $.ajax({
+                type: "POST", 
+                url: "keys", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {  
+                    var keylist = $("#keylist");
+                    keylist.empty();
+                    if(data!=null){
+                        for(var i=0; i<data.length; i++){
+                            keylist.append("<tr><td>"+(i+1)+"</td><td>"+data[i]+"</td></tr>");
+                        }
+                    } 
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+ 
+        $("#btn_get").click(function(){getData();});

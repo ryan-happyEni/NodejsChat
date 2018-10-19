@@ -1,0 +1,100 @@
+extends ../layout
+
+
+block content 
+    div(class="container") 
+        div(class="col-md-12")
+            div(class="row")
+                h4 Example2 ( hmset / hgetall ) 
+            div(class="row") 
+                div(class="col-md-12 mb-3")
+                    label(for="key") Key
+                    input(type="text" class="form-control" id="key")    
+
+            div(class="row") 
+                div(class="col-md-6 mb-3")
+                    label(for="name") Name
+                    input(type="text" class="form-control" id="name")   
+
+                div(class="col-md-6 mb-3")
+                    label(for="email") Email
+                    input(type="text" class="form-control" id="email")    
+    
+            button(class="btn btn-primary btn-lg btn-block mb-3" type="button" id="btn_set") Set 
+            button(class="btn btn-warning btn-lg btn-block mb-3" type="button" id="btn_get") Get 
+
+
+    script(type="text/javascript").
+        selectHeaderMenu(2);
+
+        function setData(){
+            if($("#key").val()==""){
+                $("#key").focus();
+                return;
+            }
+            if($("#name").val()==""){
+                $("#name").focus();
+                return;
+            }
+            if($("#email").val()==""){
+                $("#email").focus();
+                return;
+            }
+
+            var user={};
+            user.name = $("#name").val(); 
+            user.email = $("#email").val(); 
+            
+            var param = {}; 
+            param.key = $("#key").val(); 
+            param.value = user; 
+    
+            $.ajax({
+                type: "POST", 
+                url: "hmset", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        } 
+
+        function getData(){
+            if($("#key").val()==""){
+                $("#key").focus();
+                return;
+            }
+
+            var param = {}; 
+            param.key = $("#key").val();  
+    
+            $.ajax({
+                type: "POST", 
+                url: "hgetall", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    console.log(data);
+                    if(data!=null){
+                        $("#name").val(data.name);
+                        $("#email").val(data.email);
+                    }
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+
+        $("#btn_set").click(function(){setData();});
+        $("#btn_get").click(function(){getData();});

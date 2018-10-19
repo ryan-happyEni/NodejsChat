@@ -1,0 +1,113 @@
+extends ../layout
+
+
+block content 
+    div(class="container") 
+        div(class="col-md-12")
+            div(class="row")
+                h4 Example4 ( sadd / smembers ) 
+            div(class="row") 
+                div(class="col-md-12 mb-3")
+                    label(for="key") Key
+                    input(type="text" class="form-control" id="key")    
+
+            div(class="row") 
+                div(class="col-md-4 mb-3")
+                    label(for="list1") List 1
+                    input(type="text" class="form-control" id="list1" name="list")   
+
+                div(class="col-md-4 mb-3")
+                    label(for="list2") List 2
+                    input(type="text" class="form-control" id="list2" name="list")    
+
+                div(class="col-md-4 mb-3")
+                    label(for="list3") List3 2
+                    input(type="text" class="form-control" id="list3" name="list")    
+    
+            button(class="btn btn-primary btn-lg btn-block mb-3" type="button" id="btn_set") Set 
+            button(class="btn btn-warning btn-lg btn-block mb-3" type="button" id="btn_get") Get 
+
+
+    script(type="text/javascript").
+        selectHeaderMenu(2);
+
+        function setData(){
+            if($("#key").val()==""){
+                $("#key").focus();
+                return;
+            }
+            if($("#list1").val()==""){
+                $("#list1").focus();
+                return;
+            }
+            if($("#list2").val()==""){
+                $("#list2").focus();
+                return;
+            }
+            if($("#list3").val()==""){
+                $("#list3").focus();
+                return;
+            }
+
+            var list=[];
+            for(var i=1; i<=3; i++){
+                list[list.length] = $("#list"+i).val(); 
+            } 
+            
+            var param = {}; 
+            param.key = $("#key").val(); 
+            param.value = list; 
+    
+            $.ajax({
+                type: "POST", 
+                url: "sadd", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        } 
+
+        function getData(){
+            if($("#key").val()==""){
+                $("#key").focus();
+                return;
+            } 
+
+            var param = {}; 
+            param.key = $("#key").val();   
+    
+            $.ajax({
+                type: "POST", 
+                url: "smembers", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    console.log(data);
+                    if(data!=null){
+                        for(var i=0; i<3; i++){
+                            $("#list"+(i+1)).val("");
+                        }
+                        for(var i=0; i<data.length; i++){
+                            $("#list"+(i+1)).val(data[i]);
+                        }
+                    }
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+
+        $("#btn_set").click(function(){setData();});
+        $("#btn_get").click(function(){getData();});

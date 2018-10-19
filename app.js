@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var indexRouter = require('./routes/index'); 
 var chatRouter = require('./routes/chat/chat'); 
+var redisRouter = require('./routes/redis/redis'); 
 
 var app = express();
 
@@ -39,6 +40,7 @@ app.use(function (req, res, next) {
 
 app.use('/', indexRouter); 
 app.use('/chat', chatRouter);
+app.use('/redis', redisRouter); 
 
 
 

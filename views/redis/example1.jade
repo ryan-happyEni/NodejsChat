@@ -1,0 +1,111 @@
+extends ../layout
+
+
+block content 
+    div(class="container") 
+        div(class="col-md-12")
+            div(class="row")
+                h4 Example1 ( set / get )
+            div(class="row") 
+                div(class="col-md-6 mb-3")
+                    label(for="firstName") Key
+                    input(type="text" class="form-control" id="key")   
+
+                div(class="col-md-6 mb-3")
+                    label(for="firstName") Value
+                    input(type="text" class="form-control" id="value")    
+    
+            button(class="btn btn-primary btn-lg btn-block mb-3" type="button" id="btn_set") Set 
+            button(class="btn btn-warning btn-lg btn-block mb-3" type="button" id="btn_get") Get 
+            button(class="btn btn-danger btn-lg btn-block mb-3" type="button" id="btn_del") Del 
+
+
+    script(type="text/javascript").
+        selectHeaderMenu(2);
+
+        function setData(){
+            if($("#key").val()==""){
+                $("#key").focus();
+                return;
+            }
+            if($("#value").val()==""){
+                $("#value").focus();
+                return;
+            }
+            
+            var param = {}; 
+            param.key = $("#key").val(); 
+            param.value = $("#value").val();  
+    
+            $.ajax({
+                type: "POST", 
+                url: "set", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+
+        function getData(){
+            if($("#key").val()==""){
+                $("#key").focus();
+                return;
+            }
+
+            var param = {}; 
+            param.key = $("#key").val();  
+    
+            $.ajax({
+                type: "POST", 
+                url: "get", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {  
+                    $("#value").val(data!=null?data[param.key]:"");  
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+
+        function deleteData(){
+            if($("#key").val()==""){
+                $("#key").focus();
+                return;
+            } 
+            
+            var param = {}; 
+            param.key = $("#key").val();    
+    
+            $.ajax({
+                type: "POST", 
+                url: "del", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+
+        $("#btn_set").click(function(){setData();});
+        $("#btn_get").click(function(){getData();});
+        $("#btn_del").click(function(){deleteData();});
