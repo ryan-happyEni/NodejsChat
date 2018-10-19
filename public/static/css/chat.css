@@ -1,0 +1,165 @@
+
+html, body{
+    height:100%;  
+}
+.container{  
+    padding: 0px;
+    margin: 0px;
+    margin-top:0px;
+    max-width: 100%;
+    height:calc(100% - 60px);
+    min-height: 400px;
+}
+.chatWrap{
+    height:calc(100% - 150px);
+}
+.chatHiddenTop{
+    height:49px; 
+}
+.chatHeader{  
+    height:3rem;
+    background: #5a5a5a;
+    color: #fff;
+}
+.chatHeader .title{
+    font-size:1.2rem;
+    padding:0.8rem 0.5rem 0.5rem 0.5rem;
+}
+
+.chatContainer{ 
+    height:calc(100% - 0px); 
+    overflow-x:auto;
+    background: #838b92;
+}
+
+.chatMessageWrap{ 
+    margin-top:5px; 
+}  
+
+.chatContainer .chatList{
+    padding: 0.7rem;
+}
+
+.chatContainer .chatList .join,
+.chatContainer .chatList .leave{
+    padding:0.5rem;
+    text-align:center;
+}
+.chatContainer .chatList .join .name,
+.chatContainer .chatList .leave .name,
+.chatContainer .chatList .message .name{
+    font-weight:bold;
+    color: #fff;
+}
+
+.chatList .message{
+    margin-top: 8px;
+}
+.chatList .profile{
+    display:block;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    padding-top:12px;
+}
+
+.chatList .profile .profile-image{
+    overflow:hidden;
+    display:inline-block;
+    margin-right: 8px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.chatList .profile .profile-name{
+    vertical-align: middle;
+    color: #2f2f2f;
+}
+
+.chatList .message-text-group{
+    position: relative;
+    display: inline-block;
+    margin-right: 55px;
+    margin-left: 45px;
+    padding: 7px 14px;
+    border-radius: 12px;
+    border-top-left-radius: 0;
+    background: #fff;
+    line-height: 1.4;
+}
+
+.chatList .message-text-group .message-text-group-text{
+    text-decoration: inherit;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+
+.chatList .message-text-group .message-text-group-time{
+    position: absolute;
+    bottom: -2px;
+    right: -52px; 
+    font-weight: 300;
+    font-size: 11px;
+    color: #fff;
+}
+
+.chatList .me{
+text-align: right;
+}
+
+
+.chatList .me .message-text-group{  
+    margin-top: 10px;
+    margin-right: 0;
+    margin-left: 55px;
+    border-radius: 16px;
+    border-top-right-radius: 0;
+    background-color: #4783ff;
+}
+.chatList .me .message-text-group-text {
+    text-align: left;
+    line-height: 1.46;
+    color: #fff;
+}
+.chatList .me .message-text-group-time {
+    right: auto;
+    right: initial;
+    left: -52px;
+    color: #fff;
+}
+
+.chatList .preview{
+    padding: 0px;
+    margin-bottom: 10px;
+    background-color: #efefef;
+}
+.message-text-group-text-img{
+    width: 100%;
+}
+.message-text-group-text-description{
+    padding: 10px;
+}
+.message-text-group-text-description .title{
+    font-weight: bold;
+    color: #212529;
+}
+.message-text-group-text-description .description{
+    margin-top: 3px;
+    font-size:0.7rem;
+    color: #212529;
+}
+.message-text-group-text-description .url{
+    margin-top: 10px;
+    font-size:0.7rem;
+    color: #008299;
+}
+.chatList .me .message-text-group-text-description .title{ 
+    color: #ffffff;
+}
+.chatList .me .message-text-group-text-description .description{ 
+    color: #d0d0d0;
+}
+.chatList .me .message-text-group-text-description .url{ 
+    color: #ffc800;
+}

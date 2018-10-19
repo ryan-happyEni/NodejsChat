@@ -1,0 +1,33 @@
+extends ../layout
+
+block content 
+    div(class="container") 
+        div(class="chatWrap")
+            div(class="chatHiddenTop") 
+                &nbsp;     
+            div(class="chatHeader") 
+                div(class="title") 
+                    span= "Chat ( " + roomname + " - "+ roomid +" )" 
+                    &nbsp;   
+                    input(type="hidden" id="roomid" value=roomid) 
+                    &nbsp;  
+                    span= " User Id : "+userid+" "
+                    input(type="hidden" id="userid" value=userid) 
+                    &nbsp;  
+                    input(type="hidden" id="username" value=username)  
+                    input(type="hidden" id="userimg" value=userimg)  
+            div(class="chatContainer")
+                div(class="chatList" id="chatList")
+            div(class="chatMessageWrap")
+                div(class="input-group")
+                    input(class="form-control" id="sendMsg") 
+                    div(class="input-group-append")
+                        button(type="submit" class="btn btn-warning" id="sendBtn") Send 
+
+    link(rel='stylesheet', href='/static/css/chat.css')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js')
+    script(src='/static/js/chat.js') 
+    script(src='/static/js/chat/room.js') 
+    script(type="text/javascript").
+        selectHeaderMenu(1);
+

@@ -1,0 +1,85 @@
+extends ../layout
+
+
+block content 
+    div(class="container")  
+        div(class="row")
+            div(class="col-md-12")
+                h4(class="mb-3 mt-3") Chating room info.
+                form(name="frm" method="post") 
+                    div(class="row") 
+                        div(class="col-md-6 mb-3")
+                            label(for="firstName") Room id
+                            input(type="text" class="form-control" id="roomid" name="roomid" value="room_1")  
+                            div(class="invalid-feedback") Valid room id is required.
+
+                        div(class="col-md-6 mb-3")
+                            label(for="firstName") Room name
+                            input(type="text" class="form-control" id="roomname" name="roomname" value="Room 1")  
+                            div(class="invalid-feedback") Valid room name is required. 
+
+                    div(class="row") 
+                        div(class="col-md-6 mb-3")
+                            label(for="firstName") User id 
+                            div(class="input-group")
+                                div(class="input-group-prepend")
+                                span(class="input-group-text") @
+                                input(type="text" class="form-control" id="userid" name="userid" )  
+                                div(class="invalid-feedback") Valid user id is required. 
+
+                        div(class="col-md-6 mb-3")
+                            label(for="firstName") User name
+                            input(type="text" class="form-control" id="username" name="username" )  
+                            div(class="invalid-feedback") Valid user name is required. 
+
+                    div(class="row mb-3") 
+                        div(class="col-md-12 mb-3")
+                            label(for="firstName") User image
+                            input(type="text" class="form-control" id="userimg" name="userimg"  value="https://mimgnews.pstatic.net/image/001/2018/03/16/PYH2018031618990001300_P2_20180316182211992.jpg?type=w540")  
+                            div(class="invalid-feedback") Valid iamge is required. 
+            
+                    button(class="btn btn-primary btn-lg btn-block mb-3" type="button" id="joinBtn") Join 
+    
+    script(src='//code.jquery.com/jquery-latest.min.js') 
+    script(type="text/javascript").
+        selectHeaderMenu(1);
+        function joinChat(){
+            var $roomid = $("#roomid");
+            if($roomid.val()==""){
+                alert("Input room id.");
+                $roomid.focus();
+                return;
+            }
+            var $roomname = $("#roomname");
+            if($roomname.val()==""){
+                alert("Input room name.");
+                $roomname.focus();
+                return;
+            }
+            var $userid = $("#userid");
+            if($userid.val()==""){
+                alert("Input user id.");
+                $userid.focus();
+                return;
+            }
+            var $username = $("#username");
+            if($username.val()==""){
+                alert("Input user name.");
+                $username.focus();
+                return;
+            }
+            
+            var frm = document.frm;
+            frm.action="room";
+            frm.submit(); 
+        }
+
+        $("#joinBtn").click(function(e) {
+            joinChat();
+        }); 
+
+        $("#userid, #username").keyup(function(e) {
+            if(e.keyCode==13){
+            joinChat();
+            }
+        }); 
