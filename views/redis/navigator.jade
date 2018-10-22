@@ -1,0 +1,507 @@
+extends ../layout
+
+
+block content 
+    div(class="container" style="max-width:100%;") 
+        div(class="col-md-12")
+            div(class="row")
+                h4 Example6 ( keys )
+            div(class="row") 
+                div(class="col-md-12 mb-3")
+                    label(for="search") Search
+                    div(class="input-group")
+                        input(type="text" class="form-control" id="search")  
+                        div(class="input-group-append") 
+                            button(class="btn btn-warning" type="button" id="btn_get") Search  
+            br
+            br
+                
+            div(class="row")    
+                div(class="col-md-4 mb-3")
+                    h5 Key list. 
+                    ul(id="tree" style="overflow:auto; background:#fff; border:1px solid #ced4da; ")
+                        li
+                            a(href="#") A-Z
+                            ul(id="atoz") 
+                        li
+                            a(href="#") 0-9
+                            ul(id="0to9") 
+                div(class="col-md-8 mb-3")
+                    h5 Key Infomation.                     
+                    div(class="tabArea" id="tabArea") 
+                        ul(class="nav nav-pills")
+                            li(class="active")
+                                a(href="#tab1" data-toggle="tab") Default
+                            li(class="")
+                                a(href="#tab2" data-toggle="tab") Data 
+                            li(class="")
+                                a(href="#tab3" data-toggle="tab") Data Viewer
+
+                        div(class="tab-content clearfix")
+                            div(class="tab-pane active" id="tab1")
+                                div(class="card mb-4 shadow-sm")
+                                    div(class="card-header")
+                                        h4(class="my-0 font-weight-normal" id="key_name")  
+                                            &nbsp;
+                                    div(class="card-body")
+                                        ul(class="list-unstyled mt-3 mb-4")
+                                            li 
+                                                h5(class="card-title pricing-card-title") Type : 
+                                                    span(class="text-muted" id="key_type") 
+                                            li 
+                                                h5(class="card-title pricing-card-title") Data size : 
+                                                    span(class="text-muted" id="key_data_size") 
+                            div(class="tab-pane" id="tab2" style="overflow:auto; ")
+                                table(class="table table-stripedxx")
+                                    colgroup
+                                        col(width="10%")
+                                        col(width="10%")
+                                        col(width="80%")
+                                    thead   
+                                        tr  
+                                            th #
+                                            th No
+                                            th Value
+                                    tbody(id="valuelist")
+                                button(class="btn btn-primary btn-block mb-3" type="button" id="btn_more") More 
+                            div(class="tab-pane" id="tab3" style="overflow:auto; ")
+                                div(id="jsoneditor")  
+                                    
+                                link(rel='stylesheet', href='/static/jsoneditor-master/dist/jsoneditor.min.css')
+                                script(src="/static/jsoneditor-master/dist/jsoneditor-minimalist.min.js" type="text/javascript" charset="utf-8")
+                                script.
+                                    var container, options, json, editor;
+
+                                    container = document.getElementById('jsoneditor');
+
+                                    options = {
+                                        mode: 'form',
+                                        modes: ['code', 'form', 'text', 'tree', 'view'], // allowed modes
+                                        onError: function (err) {
+                                            alert(err.toString());
+                                        }
+                                    }; 
+                                    json = { 
+                                    };
+                                    editor = new JSONEditor(container, options, json); 
+                                    
+                                    $('.jsoneditor-tree-inner').css("height", ($(document.body).height()-50)+"px");
+
+                                style(type="text/css").
+                                    .jsoneditor-tree-inner{ 
+                                        overflow: auto;
+                                        padding-bottom: 300px; 
+                                    }
+
+ 
+    script(type="text/javascript").
+        selectHeaderMenu(2);
+
+        $.fn.extend({
+            treed: function (o) {
+            
+                var openedClass = 'glyphicon-minus-sign';
+                var closedClass = 'glyphicon-plus-sign';
+                
+                if (typeof o != 'undefined'){
+                    if (typeof o.openedClass != 'undefined'){
+                        openedClass = o.openedClass;
+                    }
+                    if (typeof o.closedClass != 'undefined'){
+                        closedClass = o.closedClass;
+                    }
+                };
+            
+                //initialize each of the top levels
+                var tree = $(this);
+                tree.addClass("tree");
+                tree.find('li').has("ul").each(function () {
+                    var branch = $(this); //li with children ul
+                    branch.prepend("<i class='indicator glyphicon " + closedClass + "'>+</i>");
+                    branch.addClass('branch');
+                    branch.on('click', function (e) {
+                        if (this == e.target) {
+                            var icon = $(this).children('i:first');
+                            if(icon.html()=="-"){
+                                icon.html("+");
+                            }else{
+                                icon.html("-");
+                                var id = ($(this).children('ul:first')[0].id);
+                                if("atoz"!=id && "0to9"!=id){
+                                    loadKeyList(id, id+"*");
+                                }
+                            }
+                            icon.toggleClass(openedClass + " " + closedClass);
+                            $(this).children().children().toggle();
+                        }
+                    })
+                    branch.children().children().toggle();
+                });
+                //fire event from the dynamically added icon
+                tree.find('.branch .indicator').each(function(){
+                    $(this).on('click', function () {
+                        $(this).closest('li').click();
+                    });
+                });
+                //fire event to open branch if the li contains an anchor instead of text
+                tree.find('.branch>a').each(function () {
+                    $(this).on('click', function (e) {
+                        $(this).closest('li').click();
+                        e.preventDefault();
+                    });
+                });
+                //fire event to open branch if the li contains a button instead of text
+                tree.find('.branch>button').each(function () {
+                    $(this).on('click', function (e) {
+                        $(this).closest('li').click();
+                        e.preventDefault();
+                    });
+                });
+            }
+        });
+
+        //Initialization of treeviews
+
+
+        
+        var atoz = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"
+                    , "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+
+        var keylist = $("#atoz");
+        keylist.empty();
+        for(var i=0; i<atoz.length; i++){
+            var li = document.createElement("li");     
+            keylist.append(li);        
+            li.appendChild(document.createTextNode(atoz[i]));
+            var ul = document.createElement("ul");
+            li.appendChild(ul);
+
+            ul.id = "atoz_"+atoz[i];
+        }
+        
+        var keylist = $("#0to9");
+        keylist.empty();
+        for(var i=0; i<10; i++){
+            var li = document.createElement("li");     
+            keylist.append(li);        
+            li.appendChild(document.createTextNode(i));
+            var ul = document.createElement("ul");
+            li.appendChild(ul);
+
+            ul.id = "atoz_"+atoz[i];
+        }
+
+
+
+
+        
+
+        function JSONstringify(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, '\t');
+            }
+
+            var 
+                arr = [],
+                _string = 'color:green',
+                _number = 'color:darkorange',
+                _boolean = 'color:blue',
+                _null = 'color:magenta',
+                _key = 'color:red';
+
+            json = json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var style = _number;
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        style = _key;
+                    } else {
+                        style = _string;
+                    }
+                } else if (/true|false/.test(match)) {
+                    style = _boolean;
+                } else if (/null/.test(match)) {
+                    style = _null;
+                } 
+                return '<span style="'+ style + '">' + match + '</span>';
+            });
+
+            arr.unshift(json); 
+
+            return arr;
+        } 
+
+
+        var totalList = [];
+        var isfirst = true;
+        var listIndex=0;
+        var currentPage=0;
+        function loadKeyList(targetid, search){ 
+            var param = {}; 
+            if(isfirst){
+                totalList=[];
+                isfirst = true; 
+                currentPage=0;
+                param.search = search.replace("atoz_", "").replace("0to9_", "");     
+            }else{
+                param.search = search.replace("atoz_", "").replace("0to9_", "").toUpperCase();     
+            }
+     
+            $.ajax({
+                type: "POST", 
+                url: "keys", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {  
+                    var keylist = $("#"+targetid);
+                    if(isfirst){
+                        keylist.empty();
+                        totalList = data;
+                        isfirst=false;
+                        loadKeyList(targetid, search);
+                    }else{
+                        if(data!=null){
+                            for(var i=0; i<data.length; i++){
+                                totalList[totalList.length] = data[i]; 
+                            }
+                        } 
+                        if(totalList!=null){
+                            $.each(totalList, function( index, value ) {
+                                var li = document.createElement("li");
+                                var alink = document.createElement("a");
+                                li.appendChild(alink);
+                                alink.innerHTML = value;
+                                alink.style.cursor="pointer";
+                                alink.onclick=function(){
+                                    loadInfo(value);
+                                }
+                                keylist.append(li);
+                            });
+                        }
+                        totalList=[];
+                        isfirst = true; 
+                        currentPage=0;
+                    }
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+
+        var selectedKey = null;
+        var selectedKeyType = null;
+        function loadInfo(key){
+            totalList=[];
+            isfirst = true; 
+            currentPage=0;
+            var valuelist = $("#valuelist");
+            valuelist.empty();
+
+            selectedKey = key;
+            $("#key_name").html(key);
+            var param = {}; 
+            param.key = key;   
+     
+            $.ajax({
+                type: "POST", 
+                url: "key/info", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {    
+                    $("#key_type").html(data); 
+                    selectedKeyType = data;
+                    getDataSize(key, data);
+                    loadData();
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        } 
+
+        function getDataSize(key, type){ 
+            var param = {}; 
+            param.key = key;   
+            param.type = type;
+     
+            $.ajax({
+                type: "POST", 
+                url: "key/data/size", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {    
+                    $("#key_data_size").html(data);   
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+
+        function viewData(value){ 
+            try{
+                var json = JSON.parse(value); 
+                editor.set(json);
+            }catch(e){
+                editor.set(value);
+            }
+            $(".nav-pills > li > a")[2].click();
+        }
+
+        
+        function loadData(){
+            if(selectedKey!=null && selectedKeyType!=null){ 
+                var param = {}; 
+                param.key = selectedKey;   
+                
+                var url = "";
+                if(selectedKeyType=="zset"){
+                    var viewsize = 10;
+                    url = "zrange";                    
+                    param.start = (currentPage*viewsize);  
+                    param.end = (param.start+viewsize)-1;  
+                }else if(selectedKeyType=="set"){
+                    currentPage=0; 
+                    url = "smembers";
+                }else if(selectedKeyType=="hash"){
+                    currentPage=0; 
+                    url = "hgetall";
+                }else if(selectedKeyType=="string"){
+                    currentPage=0; 
+                    url = "get";
+                }else if(selectedKeyType=="list"){
+                    var viewsize = 10;
+                    url = "lrange";                    
+                    param.start = (currentPage*viewsize); 
+                    param.end = (param.start+viewsize)-1; 
+                }
+        
+                if(url!=""){
+                    $.ajax({
+                        type: "POST", 
+                        url: url, 
+                        data: param,
+                        dataType: 'json',
+                        cache: false,
+                        timeout: 600000,
+                        success: function (data) {     
+                            var valuelist = $("#valuelist");
+                            if(currentPage==0){
+                                valuelist.empty();
+                            }else{ 
+                                valuelist.children(".pageNo"+(currentPage)).remove();
+                            }
+                            if(data!=null){
+                                if(data.length>0){  
+                                    $.each(data, function( index, value ) {
+                                        var tr = document.createElement("tr");
+                                        tr.className="pageNo"+currentPage;
+                                        valuelist.append(tr);
+                                        var td = document.createElement("td");
+                                        tr.appendChild(td);
+                                        var checkbox = document.createElement("input");
+                                        checkbox.type="checkbox";
+                                        td.appendChild(checkbox); 
+                                        var td = document.createElement("td");
+                                        tr.appendChild(td);
+                                        td.innerHTML =((currentPage*10)+index+1);
+                                        var td = document.createElement("td");
+                                        tr.appendChild(td);  
+                                        
+                                        try{
+                                            var obj = JSON.parse(value); 
+                                            td.innerHTML = "<div class='jsonDiv'><pre>"+JSONstringify(obj)+"</pre></div>" ;
+                                            td.style.cursor="pointer";
+                                            td.onclick=function(){
+                                                viewData(value);
+                                            }
+                                        }catch(e){ 
+                                            td.innerHTML = "<div class='jsonDiv'><pre>"+JSONstringify(value)+"</pre></div>" ; 
+                                        } 
+                                    }); 
+                                    if(data.length%10==0){
+                                        currentPage++;
+                                    }
+                                }else if(data.length==undefined){ 
+                                    if(selectedKeyType=="hash"){
+                                        console.log(data)
+                                        var keys = Object.keys(data);
+                                        for(var i=0; i<keys.length; i++){ 
+                                            var tr = document.createElement("tr");
+                                            valuelist.append(tr);
+                                            var td = document.createElement("td");
+                                            tr.appendChild(td);
+                                            var checkbox = document.createElement("input");
+                                            checkbox.type="checkbox";
+                                            td.appendChild(checkbox); 
+                                            var td = document.createElement("td");
+                                            tr.appendChild(td);
+                                            td.innerHTML =(i+1);
+                                            var td = document.createElement("td");
+                                            tr.appendChild(td);                                      
+                                            td.innerHTML = "<div class='jsonDiv'><pre><span style='color:red;'>"+keys[i]+"</span> : <span style='color:green;'>"+data[keys[i]]+"</span></pre></div>" ;
+                                                                                    
+                                            td.onclick=function(){
+                                                viewData(data);
+                                            }
+                                        }
+                                    }else{
+                                        var tr = document.createElement("tr");
+                                        valuelist.append(tr);
+                                        var td = document.createElement("td");
+                                        tr.appendChild(td);
+                                        var checkbox = document.createElement("input");
+                                        checkbox.type="checkbox";
+                                        td.appendChild(checkbox); 
+                                        var td = document.createElement("td");
+                                        tr.appendChild(td);
+                                        td.innerHTML =(1);
+                                        var td = document.createElement("td");
+                                        tr.appendChild(td);                                      
+                                        td.innerHTML = "<div class='jsonDiv'><pre>"+JSONstringify(data)+"</pre></div>" ;
+                                        td.onclick=function(){
+                                            viewData(data);
+                                        }
+                                    }
+                                    
+                                    valuelist.append(data)
+                                }
+                            }else{
+                                var tr = document.createElement("tr");
+                                valuelist.append(tr);
+                                var td = document.createElement("td");
+                                td.colspan="3";
+                                td.innerHTML = "Empty.";
+                                valuelist.append(data)
+                            } 
+                            
+                            $('.jsonDiv').css("width", ($(document.body).width()-220-$("#tree").width())+"px");
+                        },
+                        error: function (e) {
+                            var errorData = JSON.parse(JSON.stringify(e));
+                            console.log(errorData); 
+                        }
+                    });
+                }
+            }
+        }
+        $("#btn_more").click(function(){
+            loadData();
+        });
+        $('#tabArea > ul > li').click(function(){ 
+            $('#tabArea > ul > li').removeClass("active");
+            $(this).addClass("active");
+        });
+        $('#tree, #tabArea').css("height", ($(document.body).height()-250)+"px");
+        $('#tree').treed({openedClass:'glyphicon-minus-sign', closedClass:'glyphicon-plus-sign'}); 
+
+ 

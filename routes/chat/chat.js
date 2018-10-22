@@ -4,6 +4,8 @@ var cheerio = require('cheerio');
  
 var router = express.Router();
 
+var chatManager = require('./chatmanager.js');
+
  
 router.get('/list', function(req, res, next) {
     res.render('chat/list');
@@ -18,6 +20,13 @@ router.post('/room', function(req, res, next) {
     data.userimg = req.body.userimg;
 
     res.render('chat/room', data);
+}); 
+ 
+router.post('/load/past/message', function(req, res, next) {
+    var data = {};
+    data.roomid = req.body.roomid;
+
+    chatManager.getMessages(res, data.roomid);
 }); 
 
 router.post('/urlinfo', function(req, res, next) {

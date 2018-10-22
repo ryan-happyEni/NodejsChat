@@ -1,10 +1,11 @@
 
-    var host = window.location.protocol + "//" + window.location.host+":80/chatio"; 
+    var host = window.location.protocol + "//" + window.location.host+"/chatio"; 
     var url_join = 'join';
     var url_leave = 'leave';
     var url_chat = 'chat';
     var messageListId = 'chatList';
     var messageidx=0;
+    var initHost = false;
 
     ChatManager.prototype.send = function(message){ 
         if(_isconnected){
@@ -17,6 +18,10 @@
     ChatManager.prototype.joinCallback = function(data){
         if(_isconnected){ 
             buildMsgJoin(data);
+            if(!initHost){
+                loadMessage();
+            }
+            initHost=true;
         }else{
             console.log("not connected..");
         }
@@ -40,7 +45,7 @@
 
     var chat = new ChatManager();
     chat.init(host, url_join, url_leave, url_chat);    
-    chat.join($("#roomid").val(), $("#userid").val(), $("#username").val(), $("#userimg").val());
+    chat.join($("#roomid").val(), $("#roomname").val(), $("#userid").val(), $("#username").val(), $("#userimg").val());
     
 
     function buildMsgJoin(data){
@@ -266,6 +271,39 @@
                 var errorData = JSON.parse(JSON.stringify(e));
                 console.log(errorData); 
             }
+            });
+        }
+    } 
+    
+    
+    function loadMessage(){ 
+        if($("#roomid").val()!=""){
+            var param = {}; 
+            param.roomid = $("#roomid").val(); 
+    
+            $.ajax({
+                type: "POST", 
+                url: "load/past/message", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    if(data!=null){
+                        for(var i=0; i<data.length; i++){
+                            try{
+                                var obj = JSON.parse(data[i]);
+                                buildMsg(obj);
+                            }catch(e){
+                                console.log('not json data');
+                            }
+                        }
+                    }
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
             });
         }
     } 

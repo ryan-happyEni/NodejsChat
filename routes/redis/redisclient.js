@@ -15,7 +15,9 @@ let
         */       
     });
 
-
+module.exports.client=function(){
+    return redisClient;
+}
 
 module.exports.redisKeys=function(res, search){
     redisClient.keys(search, function (err, keys) {
@@ -25,6 +27,33 @@ module.exports.redisKeys=function(res, search){
             res.status(200).json(keys);
         }
     });     
+}
+
+module.exports.redisKeyInfo=function(res, search){  
+    redisClient.type(search, function(err, value){
+        if(err){
+            res.status(200).json(null);
+        }else{
+            res.status(200).json(value);
+        }
+    });
+}
+
+module.exports.redisExists=function(res, key){
+    redisClient.exists(key, function(err, rr){
+
+        if(err){
+            res.status(200).json(false);
+        }else{
+            if(rr==0){
+                res.status(200).json(false);
+            }else{
+                res.status(200).json(true);
+            }
+        }
+    });
+
+    return result;
 }
 
 module.exports.redisDel=function(res, key, value){
@@ -37,9 +66,9 @@ module.exports.redisDel=function(res, key, value){
     });
 }
 
-module.exports.redisSet=function(res, expierSeconds, key, value){
-    if(expierSeconds!=null && expierSeconds>0){
-        redisClient.setex(key, expierSeconds, value, function(err){
+module.exports.redisSet=function(res, expireSeconds, key, value){
+    if(expireSeconds!=null && expireSeconds>0){
+        redisClient.setex(key, expireSeconds, value, function(err){
             if(err){
                 res.status(200).json(false);
             }else{
@@ -210,5 +239,65 @@ module.exports.redisZrange=function(res, key, start, end){
         });
     }catch(e){
         res.status(200).json(null);
+    }
+} 
+
+module.exports.redisZcard=function(res, key){
+    try{ 
+        redisClient.zcard(key, function(err, reply){
+            if(err){
+                console.log(err);
+                res.status(200).json(0);
+            }else{ 
+                res.status(200).json(reply);
+            }
+        });
+    }catch(e){
+        res.status(200).json(0); 
+    }
+} 
+
+module.exports.redisScard=function(res, key){
+    try{  
+        redisClient.scard(key, function(err, reply){
+            if(err){
+                console.log(err);
+                res.status(200).json(0);
+            }else{ 
+                res.status(200).json(reply);
+            }
+        });
+    }catch(e){
+        res.status(200).json(0); 
+    }
+} 
+
+module.exports.redisLlen=function(res, key){
+    try{  
+        redisClient.llen(key, function(err, reply){
+            if(err){
+                console.log(err);
+                res.status(200).json(0);
+            }else{ 
+                res.status(200).json(reply);
+            }
+        }); 
+    }catch(e){
+        res.status(200).json(0); 
+    }
+} 
+
+module.exports.redisHlen=function(res, key){
+    try{  
+        redisClient.hlen(key, function(err, reply){
+            if(err){
+                console.log(err);
+                res.status(200).json(0);
+            }else{ 
+                res.status(200).json(reply);
+            }
+        });  
+    }catch(e){
+        res.status(200).json(0); 
     }
 } 

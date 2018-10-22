@@ -69,6 +69,7 @@ var server = app.listen(8080, function () {
 
 
 
+var chatManager = require('./routes/chat/chatmanager.js');
 
 var io = require('socket.io')(server); 
 var chatnsp = io.of('/chatio');
@@ -76,9 +77,16 @@ chatnsp.on('connection', function(socket) {
     socket.on('join', function(data) {
         //console.log('Client logged-in:\n id:' + data.id + '\n name: ' + data.name + '\n userid: ' + data.userid); 
         socket.roomid = data.id;
+        socket.roomname = data.roomname;
         socket.name = data.name;
         socket.userid = data.userid;
         socket.image = data.image;
+        
+
+        console.log("join!!!!!!!!!!!!!!!!!!!!!!")
+        chatManager.makeroom(socket.roomid, socket.roomname);
+        chatManager.join(socket.roomid, socket.userid);
+        console.log("joined~~~~~~~~~~~~~~~");
 
         socket.join(socket.roomid); 
         //chatnsp.emit('join', data.name ); 
@@ -101,6 +109,7 @@ chatnsp.on('connection', function(socket) {
         // socket.emit('chat', msg);
         //chatnsp.emit('chat', msg);
         chatnsp.to(socket.roomid).emit('chat', msg);
+        chatManager.addMessage(socket.roomid, msg);
     });
  
     socket.on('forceDisconnect', function() {

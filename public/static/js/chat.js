@@ -33,14 +33,16 @@ ChatManager.prototype.isconnected = function(){
     return _isconnected;  
 }; 
 
-ChatManager.prototype.join = function(roomid, userid, username, userimg){  
+ChatManager.prototype.join = function(roomid, roomname, userid, username, userimg){  
     if(_socket != null){
         _roomid = roomid;
+        _roomname = roomname;
         _userid = userid;
         _username = username;
         _userimg = userimg;
         _socket.emit(_url_join, { 
             id: _roomid,
+            roomname: _roomname,
             name: _username,
             userid: _userid,
             image: _userimg,

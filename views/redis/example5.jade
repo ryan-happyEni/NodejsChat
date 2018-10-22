@@ -129,6 +129,13 @@ block content
                             $("#list"+(i+1)).val("");
                         }
                         for(var i=0; i<data.length; i++){
+                            try{
+                                var obj = JSON.parse(data[i]);
+                                console.log(obj)
+                            }catch(e){
+                                console.log('not json data');
+                            }
+
                             $("#list"+(i+1)).val(data[i]);
                         }
                     }

@@ -8,35 +8,56 @@ var redisClient = require('./redisclient.js');
 router.get('/main', function(req, res, next) {
     res.render('redis/main');
 });
- 
-router.get('/example1', function(req, res, next) {
-    res.render('redis/example1');
+
+router.get('/navigator', function(req, res, next) {
+    res.render('redis/navigator');
 });
  
-router.get('/example2', function(req, res, next) {
-    res.render('redis/example2');
-});
- 
-router.get('/example3', function(req, res, next) {
-    res.render('redis/example3');
-});
- 
-router.get('/example4', function(req, res, next) {
-    res.render('redis/example4');
-});
- 
-router.get('/example5', function(req, res, next) {
-    res.render('redis/example5');
-});
- 
-router.get('/example6', function(req, res, next) {
-    res.render('redis/example6');
-});
+router.get('/example:pageNum', function(req, res, next) { 
+    res.render('redis/example'+req.params.pageNum);
+}); 
 
 router.post('/keys', function(req, res, next) {
     var search = req.body.search;
     try {      
         redisClient.redisKeys(res, search); 
+    } catch (error) {
+        console.log(error);
+        res.send(500);
+    } 
+});
+
+router.post('/key/info', function(req, res, next) {
+    var search = req.body.key;
+    try {      
+        redisClient.redisKeyInfo(res, search); 
+    } catch (error) {
+        console.log(error);
+        res.send(500);
+    } 
+});
+
+router.post('/key/data/size', function(req, res, next) {
+    var key = req.body.key;  
+    var type = req.body.type;  
+    try {        
+        if(type=="zset"){
+            redisClient.redisZcard(res, key); 
+        }else if(type=="set"){
+            redisClient.redisScard(res, key); 
+        }else if(type=="list"){
+            redisClient.redisLlen(res, key); 
+        }else if(type=="hash"){
+            redisClient.redisHlen(res, key); 
+        }else{  
+            redisClient.client().exists(key, function(err, rr){ 
+                if(err){
+                    res.status(200).json(0);
+                }else{
+                    res.status(200).json(rr); 
+                }
+            }); 
+        }
     } catch (error) {
         console.log(error);
         res.send(500);
@@ -167,9 +188,7 @@ router.post('/smembers', function(req, res, next) {
 router.post('/zadd', function(req, res, next) {
     var key = req.body.key;
     var value = []; 
-    try {      
-        console.log(req.body)
-        console.log("######################################")
+    try {       
         for (var k in req.body) {
             if(k.indexOf('value[')==0){
                 var kx = k.substring(k.indexOf("][")+2, k.length-1);
@@ -195,6 +214,16 @@ router.post('/zrange', function(req, res, next) {
     var end = req.body.end;
     try {      
         redisClient.redisZrange(res, key, start, end);
+    } catch (error) {
+        console.log(error);
+        res.send(500);
+    } 
+});
+
+router.post('/zcard', function(req, res, next) {
+    var key = req.body.key;  
+    try {       
+        redisClient.redisZcard(res, key); 
     } catch (error) {
         console.log(error);
         res.send(500);
