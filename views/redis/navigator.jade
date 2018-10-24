@@ -5,7 +5,7 @@ block content
     div(class="container" style="max-width:100%;") 
         div(class="col-md-12")
             div(class="row")
-                h4 Example6 ( keys )
+                h4 Redis.
             div(class="row") 
                 div(class="col-md-12 mb-3")
                     label(for="search") Search
@@ -13,20 +13,21 @@ block content
                         input(type="text" class="form-control" id="search")  
                         div(class="input-group-append") 
                             button(class="btn btn-warning" type="button" id="btn_get") Search  
-            br
-            br
-                
-            div(class="row")    
-                div(class="col-md-4 mb-3")
+                            button(type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#myModal") Redis server infomation.  
+                                  
+            div(class="row" id="resizableContainer")    
+                div(class="col mb-3" id="resizableA")
                     h5 Key list. 
                     ul(id="tree" style="overflow:auto; background:#fff; border:1px solid #ced4da; ")
-                        li
+                        li(id="atoz-group") 
                             a(href="#") A-Z
                             ul(id="atoz") 
-                        li
+                        li(id="0to9-group") 
                             a(href="#") 0-9
-                            ul(id="0to9") 
-                div(class="col-md-8 mb-3")
+                            ul(id="0to9")  
+                div(class="col mb-3" id="resizableSplitter")  
+                    span(class="align-middle") <>
+                div(class="col mb-3" id="resizableB")
                     h5 Key Infomation.                     
                     div(class="tabArea" id="tabArea") 
                         ul(class="nav nav-pills")
@@ -45,10 +46,10 @@ block content
                                             &nbsp;
                                     div(class="card-body")
                                         ul(class="list-unstyled mt-3 mb-4")
-                                            li 
+                                            li
                                                 h5(class="card-title pricing-card-title") Type : 
                                                     span(class="text-muted" id="key_type") 
-                                            li 
+                                            li
                                                 h5(class="card-title pricing-card-title") Data size : 
                                                     span(class="text-muted" id="key_data_size") 
                             div(class="tab-pane" id="tab2" style="overflow:auto; ")
@@ -71,9 +72,7 @@ block content
                                 script(src="/static/jsoneditor-master/dist/jsoneditor-minimalist.min.js" type="text/javascript" charset="utf-8")
                                 script.
                                     var container, options, json, editor;
-
                                     container = document.getElementById('jsoneditor');
-
                                     options = {
                                         mode: 'form',
                                         modes: ['code', 'form', 'text', 'tree', 'view'], // allowed modes
@@ -85,14 +84,66 @@ block content
                                     };
                                     editor = new JSONEditor(container, options, json); 
                                     
-                                    $('.jsoneditor-tree-inner').css("height", ($(document.body).height()-50)+"px");
+                                    $('.jsoneditor-tree-inner').css("height", ($(document.body).height()-40)+"px");
 
                                 style(type="text/css").
+                                    .jsoneditor{
+                                        border: 1px solid #cdcdcd !important;
+
+                                    } 
+                                    .jsoneditor-menu{
+                                        background: #dadada !important;
+                                        border: 0px solid #dadada !important;
+                                        padding: 0px !important;
+                                    }
                                     .jsoneditor-tree-inner{ 
                                         overflow: auto;
                                         padding-bottom: 300px; 
-                                    }
+                                    } 
+             
+            
+            div(class="modal fade right" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" data-backdrop="false" style="display: none;" aria-hidden="true")
+                div(class="modal-dialog modal-full-height modal-right modal-notify modal-info" role="document")
+                    div(class="modal-content")
+                        div(class="modal-header")
+                            p(class="heading lead") Redis-Server infomation.
 
+                            button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                                span(aria-hidden="true" class="white-text") ×
+
+                        
+                        div(class="modal-body")
+                            p(id="redis_server_info")
+ 
+                        div(class="modal-footer justify-content-center")
+                            button(type="button" class="btn btn-outline-secondary" data-dismiss="modal") Close
+                            
+            style(type="text/css").
+                #myModal .modal-dialog {
+                    left: 0;
+                    position: absolute;
+                    display: flex;
+                    width: 50%;
+                    margin: 0;
+                    height: auto;
+                    min-height: 100%;
+                    top: 0; 
+                }
+                #myModal .modal-header{
+                    background-color: #33b5e5;
+                    color: #fff;
+                }
+                #myModal .modal-header .heading{
+                    margin: 0;
+                    padding: .3rem;
+                    font-size: 1.15rem;
+                }
+                #myModal .modal-header .white-text{
+                    color: #fff;
+                }
+                #myModal .modal-footer{
+                    background-color: #fbfbfb;
+                } 
  
     script(type="text/javascript").
         selectHeaderMenu(2);
@@ -128,6 +179,7 @@ block content
                                 icon.html("-");
                                 var id = ($(this).children('ul:first')[0].id);
                                 if("atoz"!=id && "0to9"!=id){
+                                    searchKey="";
                                     loadKeyList(id, id+"*");
                                 }
                             }
@@ -165,7 +217,7 @@ block content
 
         
         var atoz = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"
-                    , "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+                    , "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "etc"];
 
         var keylist = $("#atoz");
         keylist.empty();
@@ -188,7 +240,7 @@ block content
             var ul = document.createElement("ul");
             li.appendChild(ul);
 
-            ul.id = "atoz_"+atoz[i];
+            ul.id = "0to9_"+i;
         }
 
 
@@ -228,13 +280,14 @@ block content
             arr.unshift(json); 
 
             return arr;
-        } 
+        }  
 
 
         var totalList = [];
         var isfirst = true;
         var listIndex=0;
         var currentPage=0;
+        var searchKey = "";
         function loadKeyList(targetid, search){ 
             var param = {}; 
             if(isfirst){
@@ -245,6 +298,7 @@ block content
             }else{
                 param.search = search.replace("atoz_", "").replace("0to9_", "").toUpperCase();     
             }
+            processDim.showPleaseWait();
      
             $.ajax({
                 type: "POST", 
@@ -254,9 +308,8 @@ block content
                 cache: false,
                 timeout: 600000,
                 success: function (data) {  
-                    var keylist = $("#"+targetid);
+                    $("#tree .active").removeClass("active");    
                     if(isfirst){
-                        keylist.empty();
                         totalList = data;
                         isfirst=false;
                         loadKeyList(targetid, search);
@@ -268,20 +321,52 @@ block content
                         } 
                         if(totalList!=null){
                             $.each(totalList, function( index, value ) {
+                                var parentKey = value!=null&&value.length>0?value.substring(0, 1):"etc";
+                                $("#atoz_"+parentKey).empty();
+                                $("#0to9_"+parentKey).empty();
+                                $("#atoz_etc").empty();
+                            });
+                            $.each(totalList, function( index, value ) {
+                                var parentKey = value!=null&&value.length>0?value.substring(0, 1):"etc";
+                                var parent = $("#atoz_etc");
+                                if(/[0-9]/.test(parentKey)){
+                                    parent = $("#0to9_"+parentKey);
+                                }else if(/[a-zA-Z]/.test(parentKey)){
+                                    parent = $("#atoz_"+parentKey);
+                                }
                                 var li = document.createElement("li");
                                 var alink = document.createElement("a");
                                 li.appendChild(alink);
                                 alink.innerHTML = value;
                                 alink.style.cursor="pointer";
                                 alink.onclick=function(){
+                                    $("#tree .active").removeClass("active");  
+                                    $(this).addClass("active");  
                                     loadInfo(value);
                                 }
-                                keylist.append(li);
+                                if(searchKey==value){
+                                    alink.className="active";
+                                }
+                                parent.append(li);
                             });
                         }
                         totalList=[];
                         isfirst = true; 
                         currentPage=0;
+
+                        var subtop = $("#tree .active").length==0?0:$($("#tree .active")[0]).parent().position().top;
+                        if(targetid.indexOf("*")<0){
+                            if(targetid.indexOf("atoz")>-1){
+                                $("#tree").animate({
+                                    scrollTop: $("#"+targetid).parent().position().top+subtop
+                                }, 'slow'); 
+                            }else{ 
+                                $("#tree").animate({
+                                    scrollTop: $("#atoz-group").height()+$("#"+targetid).parent().position().top+subtop
+                                }, 'slow');
+                            }
+                        }
+                        processDim.hidePleaseWait();
                     }
                 },
                 error: function (e) {
@@ -433,7 +518,6 @@ block content
                                     }
                                 }else if(data.length==undefined){ 
                                     if(selectedKeyType=="hash"){
-                                        console.log(data)
                                         var keys = Object.keys(data);
                                         for(var i=0; i<keys.length; i++){ 
                                             var tr = document.createElement("tr");
@@ -483,8 +567,12 @@ block content
                                 td.innerHTML = "Empty.";
                                 valuelist.append(data)
                             } 
-                            
-                            $('.jsonDiv').css("width", ($(document.body).width()-220-$("#tree").width())+"px");
+                            var jsonDivW = $(document.body).width()-250-$("#tree").width();
+                            var width = $("#tab2").parent().width();
+                            if(jsonDivW<(width*0.7)){
+                                jsonDivW=(width*0.7);
+                            }
+                            $('.jsonDiv').css("width", (jsonDivW)+"px");
                         },
                         error: function (e) {
                             var errorData = JSON.parse(JSON.stringify(e));
@@ -494,6 +582,47 @@ block content
                 }
             }
         }
+
+        function getRedisInfo(){ 
+            var param = {};  
+     
+            $.ajax({
+                type: "POST", 
+                url: "info", 
+                data: param,
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {   
+                    var info = data.toString();                     
+                    var 
+                        arr = [],
+                        _string = 'color:green',
+                        _number = 'color:darkorange',
+                        _boolean = 'color:blue',
+                        _null = 'color:magenta',
+                        _key = 'color:red';
+ 
+                    var json = info.replace(/# ([a-zA-Z0-9]+)?|[\S]*:/g, function (match) {
+                        var sp = match.split(":");
+                        if(match.indexOf("#")==0){
+                            return '<span style="'+ _string + '">' + match + '</span>'; 
+                        }else{
+                            return '<span style="'+ _key + '">' + sp[0] + '</span>'+"<span>&nbsp;&nbsp;:&nbsp;&nbsp;</span>"; 
+                        }
+ 
+                    }); 
+                    $("#redis_server_info").html("<pre>"+json+"</pre>");   
+                },
+                error: function (e) {
+                    var errorData = JSON.parse(JSON.stringify(e));
+                    console.log(errorData); 
+                }
+            });
+        }
+
+        getRedisInfo();
+
         $("#btn_more").click(function(){
             loadData();
         });
@@ -503,5 +632,175 @@ block content
         });
         $('#tree, #tabArea').css("height", ($(document.body).height()-250)+"px");
         $('#tree').treed({openedClass:'glyphicon-minus-sign', closedClass:'glyphicon-plus-sign'}); 
+        
+        $("#btn_get").click(function(){
+            var searchTxt = $("#search").val().trim();
+            if(searchTxt.length>0){
+                var st = searchTxt.substring(0, 1);
+                var searchid = "";
+                var prefix = ""
+                if(/[0-9]/.test(st)){
+                    prefix="0to9";
+                }else{
+                    prefix="atoz";
+                }
+                 
+                if($("#"+prefix+"-group > .glyphicon-plus-sign").length==1){
+                    $("#"+prefix+"-group").click();
+                }
+                 
+                searchKey = $("#search").val().trim();
+                if($("#"+prefix+"_"+st).parent().find(".glyphicon-plus-sign").length==1){
+                    $("#"+prefix+"_"+st).parent().find(".indicator").removeClass("glyphicon-plus-sign");
+                    $("#"+prefix+"_"+st).parent().find(".indicator").addClass("glyphicon-minus-sign");
+                    $("#"+prefix+"_"+st).parent().find(".indicator").html("-")
+                }   
+                $("#tree > li > ul > li > ul").empty();
+                var search = searchKey.indexOf("*")>-1?searchKey:st+"*";
+                loadKeyList(prefix+"_"+st, search);
+            }
+        });
 
- 
+    style(type="text/css").
+        #container {
+            width: 100%;
+            height: 100px;
+            margin: 0 auto;
+            position: relative;
+        }
+        #A, #B, #Z {
+            position: absolute;
+            top: 0;
+            height: 100%;
+        }
+        #A {
+        left: 0;
+            width: calc(30% - 5px);
+            background-color: #ccffcc;
+        }
+        #B {
+            right: 0;
+            width: calc(70% - 5px);
+            background-color: #ccccff;
+        }
+        #Z {
+            left: calc(30% - 5px);
+            width: 10px;
+            background-color: #cc0000;
+            cursor: move;
+        }
+        #A div, #B div {
+            position: absolute;
+            top: calc(70% - 5px);
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+        #info {
+            text-align: center;
+            line-height: 2em;
+        }
+
+        #resizableA{ 
+            flex: none;
+            width: 33.333333%; 
+        }
+
+        #resizableB{   
+            flex: none;
+            width: 58.333333%; 
+        }
+
+        #resizableSplitter{
+            flex: none;
+            width: 20px; 
+            padding: 2px;
+            margin-top: 32px;
+            background: #e6e6e6; 
+            vertical-align: middle;
+            cursor: move;
+        } 
+        
+        .align-middle{
+            position: relative;
+            top: 50%;
+            -webkit-transform: translateY(-50%);
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%); 
+        }
+
+    script(type="text/javascript").
+
+        function initSplitter(idContainer, idA, idB, idSplitter){ 
+            var resizableA = parseInt($(idA).width()) + 30;
+            var moveon = false;
+            var leftMin=200;
+            var rightMin=400;
+            if(resizableA>300){
+                resizableA=300;
+            }
+            $(idSplitter).mousedown(function(e){
+                moveon = true; 
+            });
+
+            $(document.body).mouseup(function(e){
+                moveon = false; 
+            });
+
+            $(document.body).mousemove(function(e){
+                if(moveon){
+                    var mouseX = event.pageX; 
+                    var offset = $(idContainer).offset(); 
+                    if(mouseX>leftMin && mouseX < ($(idContainer).width()+offset.left-rightMin)){
+                        var aW = mouseX - 30;       
+                        var bW = $(idContainer).width() - aW - 50 + 29;          
+                        $(idA).css({width : aW});  
+                        $(idB).css({width : bW});  
+                    }
+                }
+            });
+            
+            var bW = $(idContainer).width() - resizableA - 50 + 29;    
+            $(idA).css({width : resizableA});   
+            $(idB).css({width : bW}); 
+            var resizableB = parseInt($(idB).width());
+
+
+            var defaultWidth = $(document.body).width();
+            var lastWidth=defaultWidth; 
+            if(defaultWidth>rightMin+leftMin+68){
+                window.onresize=function(e){
+                    var bwidth = $(document.body).width();
+                    var gab = bwidth-defaultWidth;
+                    var aW = $(idA).width(); 
+                    var bW = bwidth-aW - 80; 
+
+                    if(bW>rightMin){ 
+                        $(idB).css({width : bW}); 
+                        lastWidth = bwidth; 
+                    }else{  
+                        var gab = bwidth-lastWidth;
+                        var aW = bwidth-rightMin-80; 
+                        if(aW>leftMin){
+                            $(idA).css({width : aW});   
+                        }
+                    }  
+                    if(bwidth < rightMin+leftMin+68){
+                        $(idSplitter).hide();
+                        $(idA).css({width : "100%"}); 
+                        $(idB).css({width : "100%"}); 
+                    }else{
+                        $(idSplitter).show();
+                    }
+                }
+            }else{
+                $(idSplitter).hide();
+                $(idA).css({width : "100%"}); 
+                $(idB).css({width : "100%"}); 
+            }
+        }
+
+        initSplitter("#resizableContainer", "#resizableA", "#resizableB", "#resizableSplitter");
+
+
+        

@@ -17,6 +17,15 @@ router.get('/example:pageNum', function(req, res, next) {
     res.render('redis/example'+req.params.pageNum);
 }); 
 
+router.post('/info', function(req, res, next) {
+    try {      
+        redisClient.redisInfo(res); 
+    } catch (error) {
+        console.log(error);
+        res.send(500);
+    } 
+});
+
 router.post('/keys', function(req, res, next) {
     var search = req.body.search;
     try {      

@@ -30,3 +30,5 @@ Node.js 채팅 서버입니다.
 3. (v0.2.1)    2018.10.22. 채팅 Redis 추가. <br>
    - 대화내용 Redis 에 저장 및 방 입장시 이전 메시지 불러오기 기능 추가.
    - Redis data navigator 기능 추가.
+4. (v0.2.2)    2018.10.22. Redis 추가. <br>
+   - Redis data navigator 개선

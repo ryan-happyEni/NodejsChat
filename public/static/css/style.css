@@ -79,6 +79,9 @@ a {
     padding:0px 0px 0px 0px;
     outline: 0;
 } 
+.tree .active{
+    color:red !important;
+}
 
 .tabArea .nav-pills > li > a {
     border-radius: 4px 4px 0 0 ;

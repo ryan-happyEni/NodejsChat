@@ -19,6 +19,16 @@ module.exports.client=function(){
     return redisClient;
 }
 
+module.exports.redisInfo=function(res){
+    redisClient.info(function(err, info){
+        if(err){
+            res.status(200).json(null);
+        }else{
+            res.status(200).json(info);
+        }
+    });     
+}
+
 module.exports.redisKeys=function(res, search){
     redisClient.keys(search, function (err, keys) {
         if(err){
@@ -289,6 +299,22 @@ module.exports.redisLlen=function(res, key){
 
 module.exports.redisHlen=function(res, key){
     try{  
+        redisClient.hlen(key, function(err, reply){
+            if(err){
+                console.log(err);
+                res.status(200).json(0);
+            }else{ 
+                res.status(200).json(reply);
+            }
+        });  
+    }catch(e){
+        res.status(200).json(0); 
+    }
+} 
+
+module.exports.redisKeycount=function(res, key){
+    try{  
+        redisClient.ZSCAN
         redisClient.hlen(key, function(err, reply){
             if(err){
                 console.log(err);
