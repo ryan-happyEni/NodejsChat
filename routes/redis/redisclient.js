@@ -13,7 +13,7 @@ let
             ca   : [ stringValueOfCaCertFile ]
         }
         */       
-    });
+    }); 
 
 module.exports.client=function(){
     return redisClient;
@@ -33,7 +33,7 @@ module.exports.redisKeys=function(res, search){
     redisClient.keys(search, function (err, keys) {
         if(err){
             res.status(200).json(false);
-        }else{
+        }else{ 
             res.status(200).json(keys);
         }
     });     
@@ -74,6 +74,46 @@ module.exports.redisDel=function(res, key, value){
             res.status(200).json(true);
         }
     });
+}
+
+module.exports.redisHdel=function(res, key, field){
+    redisClient.hdel(key, field, function(err){
+        if(err){
+            res.status(200).json(false);
+        }else{
+            res.status(200).json(true);
+        }
+    });
+}
+
+module.exports.redisSrem=function(res, key, value){
+    redisClient.srem(key, value, function(err){
+        if(err){
+            res.status(200).json(false);
+        }else{
+            res.status(200).json(true);
+        }
+    }); 
+}
+
+module.exports.redisZrem=function(res, key, value){
+    redisClient.zrem(key, value, function(err){
+        if(err){
+            res.status(200).json(false);
+        }else{
+            res.status(200).json(true);
+        }
+    }); 
+}
+
+module.exports.redisLrem=function(res, key, value, count){ 
+    redisClient.lrem(key, count, value, function(err){
+        if(err){
+            res.status(200).json(false);
+        }else{
+            res.status(200).json(true);
+        }
+    });     
 }
 
 module.exports.redisSet=function(res, expireSeconds, key, value){

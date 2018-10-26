@@ -83,6 +83,32 @@ router.post('/del', function(req, res, next) {
     } 
 });
 
+router.post('/del/:type', function(req, res, next) {
+    var key = req.body.key;
+    try {      
+        var type = req.params.type;
+        if(type=="hash"){
+            var field = req.body.field;
+            redisClient.redisHdel(res, key, field); 
+        }else if(type=="set"){
+            var value = req.body.value;
+            redisClient.redisSrem(res, key, value); 
+        }else if(type=="zset"){
+            var value = req.body.value;
+            redisClient.redisZrem(res, key, value); 
+        }else if(type=="list"){
+            var value = req.body.value;
+            var count = req.body.count;
+            redisClient.redisZrem(res, key, value, count); 
+        }else{
+            res.status(200).json(false);
+        }
+    } catch (error) {
+        console.log(error);
+        res.send(500);
+    } 
+});
+
 router.post('/set', function(req, res, next) {
     var key = req.body.key;
     var value = req.body.value; 

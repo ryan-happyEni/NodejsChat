@@ -12,11 +12,11 @@ block content
                     div(class="input-group")
                         input(type="text" class="form-control" id="search")  
                         div(class="input-group-append") 
-                            button(class="btn btn-warning" type="button" id="btn_get") Search  
+                            button(class="btn btn-info" type="button" id="btn_get") Search  
                             button(type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#myModal") Redis server infomation.  
                                   
             div(class="row" id="resizableContainer")    
-                div(class="col mb-3" id="resizableA")
+                div(class="col mb-3 resizable" id="resizableA")
                     h5 Key list. 
                     ul(id="tree" style="overflow:auto; background:#fff; border:1px solid #ced4da; ")
                         li(id="atoz-group") 
@@ -25,9 +25,9 @@ block content
                         li(id="0to9-group") 
                             a(href="#") 0-9
                             ul(id="0to9")  
-                div(class="col mb-3" id="resizableSplitter")  
+                div(class="col mb-3 resizableSplitter" id="resizableSplitter")  
                     span(class="align-middle") <>
-                div(class="col mb-3" id="resizableB")
+                div(class="col mb-3 resizable" id="resizableB")
                     h5 Key Infomation.                     
                     div(class="tabArea" id="tabArea") 
                         ul(class="nav nav-pills")
@@ -52,7 +52,13 @@ block content
                                             li
                                                 h5(class="card-title pricing-card-title") Data size : 
                                                     span(class="text-muted" id="key_data_size") 
+                                button(class="btn btn-danger btn-block col-md-3" type="button" id="btn_del_key") Delete key
                             div(class="tab-pane" id="tab2" style="overflow:auto; ")
+                                div(class="row mr-1 justify-content-md-end" style="display:none")
+                                    p
+                                        button(class="btn btn-success mr-2" type="button" id="btn_add") Add
+                                        button(class="btn btn-warning mr-2" type="button" id="btn_modify") Modify
+                                        button(class="btn btn-danger" type="button" id="btn_del") Delete
                                 table(class="table table-stripedxx")
                                     colgroup
                                         col(width="10%")
@@ -64,7 +70,7 @@ block content
                                             th No
                                             th Value
                                     tbody(id="valuelist")
-                                button(class="btn btn-primary btn-block mb-3" type="button" id="btn_more") More 
+                                button(class="btn btn-secondary btn-block mb-3" type="button" id="btn_more") More 
                             div(class="tab-pane" id="tab3" style="overflow:auto; ")
                                 div(id="jsoneditor")  
                                     
@@ -83,8 +89,13 @@ block content
                                     json = { 
                                     };
                                     editor = new JSONEditor(container, options, json); 
-                                    
-                                    $('.jsoneditor-tree-inner').css("height", ($(document.body).height()-40)+"px");
+
+                                    var editorHeight = $(window).height()-410;
+                                    if(editorHeight<390){
+                                        editorHeight=390;
+                                    }                       
+                                    console.log(editorHeight)          
+                                    $('.jsoneditor-tree-inner').css("height", (editorHeight)+"px");
 
                                 style(type="text/css").
                                     .jsoneditor{
@@ -145,661 +156,33 @@ block content
                     background-color: #fbfbfb;
                 } 
  
+    script(src="/static/js/redis/navigator.js")
     script(type="text/javascript").
         selectHeaderMenu(2);
-
-        $.fn.extend({
-            treed: function (o) {
-            
-                var openedClass = 'glyphicon-minus-sign';
-                var closedClass = 'glyphicon-plus-sign';
-                
-                if (typeof o != 'undefined'){
-                    if (typeof o.openedClass != 'undefined'){
-                        openedClass = o.openedClass;
-                    }
-                    if (typeof o.closedClass != 'undefined'){
-                        closedClass = o.closedClass;
-                    }
-                };
-            
-                //initialize each of the top levels
-                var tree = $(this);
-                tree.addClass("tree");
-                tree.find('li').has("ul").each(function () {
-                    var branch = $(this); //li with children ul
-                    branch.prepend("<i class='indicator glyphicon " + closedClass + "'>+</i>");
-                    branch.addClass('branch');
-                    branch.on('click', function (e) {
-                        if (this == e.target) {
-                            var icon = $(this).children('i:first');
-                            if(icon.html()=="-"){
-                                icon.html("+");
-                            }else{
-                                icon.html("-");
-                                var id = ($(this).children('ul:first')[0].id);
-                                if("atoz"!=id && "0to9"!=id){
-                                    searchKey="";
-                                    loadKeyList(id, id+"*");
-                                }
-                            }
-                            icon.toggleClass(openedClass + " " + closedClass);
-                            $(this).children().children().toggle();
-                        }
-                    })
-                    branch.children().children().toggle();
-                });
-                //fire event from the dynamically added icon
-                tree.find('.branch .indicator').each(function(){
-                    $(this).on('click', function () {
-                        $(this).closest('li').click();
-                    });
-                });
-                //fire event to open branch if the li contains an anchor instead of text
-                tree.find('.branch>a').each(function () {
-                    $(this).on('click', function (e) {
-                        $(this).closest('li').click();
-                        e.preventDefault();
-                    });
-                });
-                //fire event to open branch if the li contains a button instead of text
-                tree.find('.branch>button').each(function () {
-                    $(this).on('click', function (e) {
-                        $(this).closest('li').click();
-                        e.preventDefault();
-                    });
-                });
-            }
-        });
-
-        //Initialization of treeviews
-
-
-        
-        var atoz = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"
-                    , "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "etc"];
-
-        var keylist = $("#atoz");
-        keylist.empty();
-        for(var i=0; i<atoz.length; i++){
-            var li = document.createElement("li");     
-            keylist.append(li);        
-            li.appendChild(document.createTextNode(atoz[i]));
-            var ul = document.createElement("ul");
-            li.appendChild(ul);
-
-            ul.id = "atoz_"+atoz[i];
+        var treeHeight = $(window).height()-300;
+        if(treeHeight<500){
+            treeHeight=500;
         }
-        
-        var keylist = $("#0to9");
-        keylist.empty();
-        for(var i=0; i<10; i++){
-            var li = document.createElement("li");     
-            keylist.append(li);        
-            li.appendChild(document.createTextNode(i));
-            var ul = document.createElement("ul");
-            li.appendChild(ul);
-
-            ul.id = "0to9_"+i;
-        }
-
-
-
-
-        
-
-        function JSONstringify(json) {
-            if (typeof json != 'string') {
-                json = JSON.stringify(json, undefined, '\t');
-            }
-
-            var 
-                arr = [],
-                _string = 'color:green',
-                _number = 'color:darkorange',
-                _boolean = 'color:blue',
-                _null = 'color:magenta',
-                _key = 'color:red';
-
-            json = json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-                var style = _number;
-                if (/^"/.test(match)) {
-                    if (/:$/.test(match)) {
-                        style = _key;
-                    } else {
-                        style = _string;
-                    }
-                } else if (/true|false/.test(match)) {
-                    style = _boolean;
-                } else if (/null/.test(match)) {
-                    style = _null;
-                } 
-                return '<span style="'+ style + '">' + match + '</span>';
-            });
-
-            arr.unshift(json); 
-
-            return arr;
-        }  
-
-
-        var totalList = [];
-        var isfirst = true;
-        var listIndex=0;
-        var currentPage=0;
-        var searchKey = "";
-        function loadKeyList(targetid, search){ 
-            var param = {}; 
-            if(isfirst){
-                totalList=[];
-                isfirst = true; 
-                currentPage=0;
-                param.search = search.replace("atoz_", "").replace("0to9_", "");     
-            }else{
-                param.search = search.replace("atoz_", "").replace("0to9_", "").toUpperCase();     
-            }
-            processDim.showPleaseWait();
-     
-            $.ajax({
-                type: "POST", 
-                url: "keys", 
-                data: param,
-                dataType: 'json',
-                cache: false,
-                timeout: 600000,
-                success: function (data) {  
-                    $("#tree .active").removeClass("active");    
-                    if(isfirst){
-                        totalList = data;
-                        isfirst=false;
-                        loadKeyList(targetid, search);
-                    }else{
-                        if(data!=null){
-                            for(var i=0; i<data.length; i++){
-                                totalList[totalList.length] = data[i]; 
-                            }
-                        } 
-                        if(totalList!=null){
-                            $.each(totalList, function( index, value ) {
-                                var parentKey = value!=null&&value.length>0?value.substring(0, 1):"etc";
-                                $("#atoz_"+parentKey).empty();
-                                $("#0to9_"+parentKey).empty();
-                                $("#atoz_etc").empty();
-                            });
-                            $.each(totalList, function( index, value ) {
-                                var parentKey = value!=null&&value.length>0?value.substring(0, 1):"etc";
-                                var parent = $("#atoz_etc");
-                                if(/[0-9]/.test(parentKey)){
-                                    parent = $("#0to9_"+parentKey);
-                                }else if(/[a-zA-Z]/.test(parentKey)){
-                                    parent = $("#atoz_"+parentKey);
-                                }
-                                var li = document.createElement("li");
-                                var alink = document.createElement("a");
-                                li.appendChild(alink);
-                                alink.innerHTML = value;
-                                alink.style.cursor="pointer";
-                                alink.onclick=function(){
-                                    $("#tree .active").removeClass("active");  
-                                    $(this).addClass("active");  
-                                    loadInfo(value);
-                                }
-                                if(searchKey==value){
-                                    alink.className="active";
-                                }
-                                parent.append(li);
-                            });
-                        }
-                        totalList=[];
-                        isfirst = true; 
-                        currentPage=0;
-
-                        var subtop = $("#tree .active").length==0?0:$($("#tree .active")[0]).parent().position().top;
-                        if(targetid.indexOf("*")<0){
-                            if(targetid.indexOf("atoz")>-1){
-                                $("#tree").animate({
-                                    scrollTop: $("#"+targetid).parent().position().top+subtop
-                                }, 'slow'); 
-                            }else{ 
-                                $("#tree").animate({
-                                    scrollTop: $("#atoz-group").height()+$("#"+targetid).parent().position().top+subtop
-                                }, 'slow');
-                            }
-                        }
-                        processDim.hidePleaseWait();
-                    }
-                },
-                error: function (e) {
-                    var errorData = JSON.parse(JSON.stringify(e));
-                    console.log(errorData); 
-                }
-            });
-        }
-
-        var selectedKey = null;
-        var selectedKeyType = null;
-        function loadInfo(key){
-            totalList=[];
-            isfirst = true; 
-            currentPage=0;
-            var valuelist = $("#valuelist");
-            valuelist.empty();
-
-            selectedKey = key;
-            $("#key_name").html(key);
-            var param = {}; 
-            param.key = key;   
-     
-            $.ajax({
-                type: "POST", 
-                url: "key/info", 
-                data: param,
-                dataType: 'json',
-                cache: false,
-                timeout: 600000,
-                success: function (data) {    
-                    $("#key_type").html(data); 
-                    selectedKeyType = data;
-                    getDataSize(key, data);
-                    loadData();
-                },
-                error: function (e) {
-                    var errorData = JSON.parse(JSON.stringify(e));
-                    console.log(errorData); 
-                }
-            });
-        } 
-
-        function getDataSize(key, type){ 
-            var param = {}; 
-            param.key = key;   
-            param.type = type;
-     
-            $.ajax({
-                type: "POST", 
-                url: "key/data/size", 
-                data: param,
-                dataType: 'json',
-                cache: false,
-                timeout: 600000,
-                success: function (data) {    
-                    $("#key_data_size").html(data);   
-                },
-                error: function (e) {
-                    var errorData = JSON.parse(JSON.stringify(e));
-                    console.log(errorData); 
-                }
-            });
-        }
-
-        function viewData(value){ 
-            try{
-                var json = JSON.parse(value); 
-                editor.set(json);
-            }catch(e){
-                editor.set(value);
-            }
-            $(".nav-pills > li > a")[2].click();
-        }
-
-        
-        function loadData(){
-            if(selectedKey!=null && selectedKeyType!=null){ 
-                var param = {}; 
-                param.key = selectedKey;   
-                
-                var url = "";
-                if(selectedKeyType=="zset"){
-                    var viewsize = 10;
-                    url = "zrange";                    
-                    param.start = (currentPage*viewsize);  
-                    param.end = (param.start+viewsize)-1;  
-                }else if(selectedKeyType=="set"){
-                    currentPage=0; 
-                    url = "smembers";
-                }else if(selectedKeyType=="hash"){
-                    currentPage=0; 
-                    url = "hgetall";
-                }else if(selectedKeyType=="string"){
-                    currentPage=0; 
-                    url = "get";
-                }else if(selectedKeyType=="list"){
-                    var viewsize = 10;
-                    url = "lrange";                    
-                    param.start = (currentPage*viewsize); 
-                    param.end = (param.start+viewsize)-1; 
-                }
-        
-                if(url!=""){
-                    $.ajax({
-                        type: "POST", 
-                        url: url, 
-                        data: param,
-                        dataType: 'json',
-                        cache: false,
-                        timeout: 600000,
-                        success: function (data) {     
-                            var valuelist = $("#valuelist");
-                            if(currentPage==0){
-                                valuelist.empty();
-                            }else{ 
-                                valuelist.children(".pageNo"+(currentPage)).remove();
-                            }
-                            if(data!=null){
-                                if(data.length>0){  
-                                    $.each(data, function( index, value ) {
-                                        var tr = document.createElement("tr");
-                                        tr.className="pageNo"+currentPage;
-                                        valuelist.append(tr);
-                                        var td = document.createElement("td");
-                                        tr.appendChild(td);
-                                        var checkbox = document.createElement("input");
-                                        checkbox.type="checkbox";
-                                        td.appendChild(checkbox); 
-                                        var td = document.createElement("td");
-                                        tr.appendChild(td);
-                                        td.innerHTML =((currentPage*10)+index+1);
-                                        var td = document.createElement("td");
-                                        tr.appendChild(td);  
-                                        
-                                        try{
-                                            var obj = JSON.parse(value); 
-                                            td.innerHTML = "<div class='jsonDiv'><pre>"+JSONstringify(obj)+"</pre></div>" ;
-                                            td.style.cursor="pointer";
-                                            td.onclick=function(){
-                                                viewData(value);
-                                            }
-                                        }catch(e){ 
-                                            td.innerHTML = "<div class='jsonDiv'><pre>"+JSONstringify(value)+"</pre></div>" ; 
-                                        } 
-                                    }); 
-                                    if(data.length%10==0){
-                                        currentPage++;
-                                    }
-                                }else if(data.length==undefined){ 
-                                    if(selectedKeyType=="hash"){
-                                        var keys = Object.keys(data);
-                                        for(var i=0; i<keys.length; i++){ 
-                                            var tr = document.createElement("tr");
-                                            valuelist.append(tr);
-                                            var td = document.createElement("td");
-                                            tr.appendChild(td);
-                                            var checkbox = document.createElement("input");
-                                            checkbox.type="checkbox";
-                                            td.appendChild(checkbox); 
-                                            var td = document.createElement("td");
-                                            tr.appendChild(td);
-                                            td.innerHTML =(i+1);
-                                            var td = document.createElement("td");
-                                            tr.appendChild(td);                                      
-                                            td.innerHTML = "<div class='jsonDiv'><pre><span style='color:red;'>"+keys[i]+"</span> : <span style='color:green;'>"+data[keys[i]]+"</span></pre></div>" ;
-                                                                                    
-                                            td.onclick=function(){
-                                                viewData(data);
-                                            }
-                                        }
-                                    }else{
-                                        var tr = document.createElement("tr");
-                                        valuelist.append(tr);
-                                        var td = document.createElement("td");
-                                        tr.appendChild(td);
-                                        var checkbox = document.createElement("input");
-                                        checkbox.type="checkbox";
-                                        td.appendChild(checkbox); 
-                                        var td = document.createElement("td");
-                                        tr.appendChild(td);
-                                        td.innerHTML =(1);
-                                        var td = document.createElement("td");
-                                        tr.appendChild(td);                                      
-                                        td.innerHTML = "<div class='jsonDiv'><pre>"+JSONstringify(data)+"</pre></div>" ;
-                                        td.onclick=function(){
-                                            viewData(data);
-                                        }
-                                    }
-                                    
-                                    valuelist.append(data)
-                                }
-                            }else{
-                                var tr = document.createElement("tr");
-                                valuelist.append(tr);
-                                var td = document.createElement("td");
-                                td.colspan="3";
-                                td.innerHTML = "Empty.";
-                                valuelist.append(data)
-                            } 
-                            var jsonDivW = $(document.body).width()-250-$("#tree").width();
-                            var width = $("#tab2").parent().width();
-                            if(jsonDivW<(width*0.7)){
-                                jsonDivW=(width*0.7);
-                            }
-                            $('.jsonDiv').css("width", (jsonDivW)+"px");
-                        },
-                        error: function (e) {
-                            var errorData = JSON.parse(JSON.stringify(e));
-                            console.log(errorData); 
-                        }
-                    });
-                }
-            }
-        }
-
-        function getRedisInfo(){ 
-            var param = {};  
-     
-            $.ajax({
-                type: "POST", 
-                url: "info", 
-                data: param,
-                dataType: 'json',
-                cache: false,
-                timeout: 600000,
-                success: function (data) {   
-                    var info = data.toString();                     
-                    var 
-                        arr = [],
-                        _string = 'color:green',
-                        _number = 'color:darkorange',
-                        _boolean = 'color:blue',
-                        _null = 'color:magenta',
-                        _key = 'color:red';
- 
-                    var json = info.replace(/# ([a-zA-Z0-9]+)?|[\S]*:/g, function (match) {
-                        var sp = match.split(":");
-                        if(match.indexOf("#")==0){
-                            return '<span style="'+ _string + '">' + match + '</span>'; 
-                        }else{
-                            return '<span style="'+ _key + '">' + sp[0] + '</span>'+"<span>&nbsp;&nbsp;:&nbsp;&nbsp;</span>"; 
-                        }
- 
-                    }); 
-                    $("#redis_server_info").html("<pre>"+json+"</pre>");   
-                },
-                error: function (e) {
-                    var errorData = JSON.parse(JSON.stringify(e));
-                    console.log(errorData); 
-                }
-            });
-        }
-
-        getRedisInfo();
-
-        $("#btn_more").click(function(){
-            loadData();
-        });
-        $('#tabArea > ul > li').click(function(){ 
-            $('#tabArea > ul > li').removeClass("active");
-            $(this).addClass("active");
-        });
-        $('#tree, #tabArea').css("height", ($(document.body).height()-250)+"px");
+        $('#tree, #tabArea').css("height", (treeHeight)+"px");
         $('#tree').treed({openedClass:'glyphicon-minus-sign', closedClass:'glyphicon-plus-sign'}); 
-        
-        $("#btn_get").click(function(){
-            var searchTxt = $("#search").val().trim();
-            if(searchTxt.length>0){
-                var st = searchTxt.substring(0, 1);
-                var searchid = "";
-                var prefix = ""
-                if(/[0-9]/.test(st)){
-                    prefix="0to9";
-                }else{
-                    prefix="atoz";
-                }
-                 
-                if($("#"+prefix+"-group > .glyphicon-plus-sign").length==1){
-                    $("#"+prefix+"-group").click();
-                }
-                 
-                searchKey = $("#search").val().trim();
-                if($("#"+prefix+"_"+st).parent().find(".glyphicon-plus-sign").length==1){
-                    $("#"+prefix+"_"+st).parent().find(".indicator").removeClass("glyphicon-plus-sign");
-                    $("#"+prefix+"_"+st).parent().find(".indicator").addClass("glyphicon-minus-sign");
-                    $("#"+prefix+"_"+st).parent().find(".indicator").html("-")
-                }   
-                $("#tree > li > ul > li > ul").empty();
-                var search = searchKey.indexOf("*")>-1?searchKey:st+"*";
-                loadKeyList(prefix+"_"+st, search);
-            }
-        });
 
     style(type="text/css").
-        #container {
-            width: 100%;
-            height: 100px;
-            margin: 0 auto;
-            position: relative;
-        }
-        #A, #B, #Z {
-            position: absolute;
-            top: 0;
-            height: 100%;
-        }
-        #A {
-        left: 0;
-            width: calc(30% - 5px);
-            background-color: #ccffcc;
-        }
-        #B {
-            right: 0;
-            width: calc(70% - 5px);
-            background-color: #ccccff;
-        }
-        #Z {
-            left: calc(30% - 5px);
-            width: 10px;
-            background-color: #cc0000;
-            cursor: move;
-        }
-        #A div, #B div {
-            position: absolute;
-            top: calc(70% - 5px);
-            left: 0;
-            width: 100%;
-            text-align: center;
-        }
-        #info {
-            text-align: center;
-            line-height: 2em;
-        }
-
         #resizableA{ 
-            flex: none;
             width: 33.333333%; 
         }
 
         #resizableB{   
-            flex: none;
             width: 58.333333%; 
-        }
+        } 
 
         #resizableSplitter{
-            flex: none;
-            width: 20px; 
-            padding: 2px;
             margin-top: 32px;
             background: #e6e6e6; 
-            vertical-align: middle;
-            cursor: move;
         } 
-        
-        .align-middle{
-            position: relative;
-            top: 50%;
-            -webkit-transform: translateY(-50%);
-            -ms-transform: translateY(-50%);
-            transform: translateY(-50%); 
-        }
 
+    link(rel='stylesheet', href='/static/css/splitter.css')
+    script(src="/static/js/splitter.js")
     script(type="text/javascript").
-
-        function initSplitter(idContainer, idA, idB, idSplitter){ 
-            var resizableA = parseInt($(idA).width()) + 30;
-            var moveon = false;
-            var leftMin=200;
-            var rightMin=400;
-            if(resizableA>300){
-                resizableA=300;
-            }
-            $(idSplitter).mousedown(function(e){
-                moveon = true; 
-            });
-
-            $(document.body).mouseup(function(e){
-                moveon = false; 
-            });
-
-            $(document.body).mousemove(function(e){
-                if(moveon){
-                    var mouseX = event.pageX; 
-                    var offset = $(idContainer).offset(); 
-                    if(mouseX>leftMin && mouseX < ($(idContainer).width()+offset.left-rightMin)){
-                        var aW = mouseX - 30;       
-                        var bW = $(idContainer).width() - aW - 50 + 29;          
-                        $(idA).css({width : aW});  
-                        $(idB).css({width : bW});  
-                    }
-                }
-            });
-            
-            var bW = $(idContainer).width() - resizableA - 50 + 29;    
-            $(idA).css({width : resizableA});   
-            $(idB).css({width : bW}); 
-            var resizableB = parseInt($(idB).width());
-
-
-            var defaultWidth = $(document.body).width();
-            var lastWidth=defaultWidth; 
-            if(defaultWidth>rightMin+leftMin+68){
-                window.onresize=function(e){
-                    var bwidth = $(document.body).width();
-                    var gab = bwidth-defaultWidth;
-                    var aW = $(idA).width(); 
-                    var bW = bwidth-aW - 80; 
-
-                    if(bW>rightMin){ 
-                        $(idB).css({width : bW}); 
-                        lastWidth = bwidth; 
-                    }else{  
-                        var gab = bwidth-lastWidth;
-                        var aW = bwidth-rightMin-80; 
-                        if(aW>leftMin){
-                            $(idA).css({width : aW});   
-                        }
-                    }  
-                    if(bwidth < rightMin+leftMin+68){
-                        $(idSplitter).hide();
-                        $(idA).css({width : "100%"}); 
-                        $(idB).css({width : "100%"}); 
-                    }else{
-                        $(idSplitter).show();
-                    }
-                }
-            }else{
-                $(idSplitter).hide();
-                $(idA).css({width : "100%"}); 
-                $(idB).css({width : "100%"}); 
-            }
-        }
-
         initSplitter("#resizableContainer", "#resizableA", "#resizableB", "#resizableSplitter");
 
 

@@ -4,8 +4,13 @@ html
         title Node.js Chat Server
         meta(charset="utf-8")
         meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
+        meta(name="_csrf" content=_csrf)
+        meta(name="_csrf_header" content=_csrf_header) 
+
         link(rel='stylesheet', href='//stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css')
         link(rel='stylesheet', href='/static/css/style.css')
+        script(src='//code.jquery.com/jquery-latest.min.js')
+        script(src="/static/js/common.js")
     body
         include include/header.jade
         
@@ -14,4 +19,3 @@ html
         include include/footer.jade
         
         script(src="//stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js")
-        script(src="/static/js/common.js")

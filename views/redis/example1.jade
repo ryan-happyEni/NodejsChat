@@ -35,7 +35,12 @@ block content
             
             var param = {}; 
             param.key = $("#key").val(); 
-            param.value = $("#value").val();  
+            try{
+                var temp = JSON.parse($("#value").val());
+                param.value = JSON.stringify(temp);  
+            }catch(e){
+                param.value = $("#value").val();  
+            } 
     
             $.ajax({
                 type: "POST", 
@@ -71,10 +76,14 @@ block content
                 cache: false,
                 timeout: 600000,
                 success: function (data) {  
-                    if(data!=null && data[param.key]){
-                        $("#value").val(data[param.key]);      
+                    if( typeof data == "object"){
+                        $("#value").val(JSON.stringify(data));
                     }else{
-                        $("#value").val(data);      
+                        if(data!=null && data[param.key]){
+                            $("#value").val(data[param.key]);      
+                        }else{
+                            $("#value").val(data);
+                        }
                     }
                 },
                 error: function (e) {
